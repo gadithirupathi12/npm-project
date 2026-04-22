@@ -1,53 +1,31 @@
-# ─────────────────────────────────────────────────────
-# FILE: .github/workflows/ci.yml
-# PURPOSE: Auto-test our Node.js app on every push
-# ─────────────────────────────────────────────────────
- 
-name: Node.js CI          # This name shows in GitHub Actions tab
- 
-# WHEN should this workflow run?
+name: Node.js CI
+
 on:
-  push:                   # Run when we push code
-    branches: [ main ]    # Only watch the 'main' branch
-  pull_request:           # Also run when someone opens a Pull Request
+  push:
     branches: [ main ]
- 
-# WHAT should it do?
+  pull_request:
+    branches: [ main ]
+
 jobs:
-  test:                   # Job name (you can name it anything)
-    runs-on: ubuntu-latest  # Use a fresh Ubuntu Linux machine
- 
-    # Test on multiple Node.js versions (optional but good practice)
+  test:
+    runs-on: ubuntu-latest
+
     strategy:
       matrix:
-        node-version: [18.x, 20.x]  # Test on Node 18 AND 20
- 
-    steps:                # List of steps to run in order
- 
-      # Step 1: Download your code onto the runner machine
+        node-version: [20.x, 22.x]
+
+    steps:
       - name: Checkout code
         uses: actions/checkout@v4
- 
-      # Step 2: Install the correct version of Node.js
+
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'    # Cache node_modules to speed up future runs
- 
-      # Step 3: Install all packages from package.json
+          cache: 'npm'
+
       - name: Install dependencies
-        run: npm ci       # npm ci is faster and stricter than npm install
- 
-      # Step 4: Run your tests!
+        run: npm ci
+
       - name: Run tests
         run: npm test
- 
-      # Step 5 (optional): Check if the app starts without crashing
-      - name: Verify app starts
-        run: |
-          node app.js &       # Start app in background
-          sleep 3             # Wait 3 seconds
-          curl -f http://localhost:3000/employees  # Hit the API
-          kill %1             # Stop the app
- 
